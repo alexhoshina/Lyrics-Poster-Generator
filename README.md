@@ -24,7 +24,7 @@
 - 准备一个图片文件作为背景（例如：jay.jpg）
 - 修改代码中的以下部分，以指定输入路径、输出路径、标题、歌词和字体路径
 ```
-input_path = 'bli\jay.jpg'  
+input_path = 'lib\jay.jpg'  
 out_path = 'poster.png'  
 song_title = '断了的弦'  
 song_lyrics = '''歌词内容'''  

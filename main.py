@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 #输入路径
-input_path = 'bli\jay.jpg'
+input_path = 'lib\jay.jpg'
 #输出路径
 out_path = 'poster.png'
 #标题
