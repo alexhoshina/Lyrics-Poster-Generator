@@ -14,7 +14,7 @@
 ## 依赖
 
 - Python 3.x
-- Pillow (PIL Fork)
+- Pillow
 
 安装依赖：
  ` pip install pillow `
@@ -22,15 +22,14 @@
 ## 使用方法
 - 将代码利用git或github的Code Download功能下载到本地
 - 准备一个图片文件作为背景（例如：jay.jpg）
-- 修改代码中的以下部分，以指定输入路径、输出路径、标题、歌词和字体路径
+- 修改代码中的以下部分
 ```
-input_path = 'lib\jay.jpg'  
-out_path = 'poster.png'  
-song_title = '断了的弦'  
-song_lyrics = '''歌词内容'''  
-font_pth = '' #若不指定则默认使用中易黑体
+text1 = '想要有直升机\n想要和你飞到宇宙去\n想要和你融化在一起\n融化在银河里' # 歌词
+text2 = 'Jay Chou' # 歌手
+text3 = '可爱女人' # 歌曲名
+text4 = '@AlexHoshina' # 水印
 ```
-- 运行代码：` python lyrics_poster.py `
+- 运行代码：` python PosterBuild.py `
 - 查看生成的海报（例如：poster.png）  
 
 ## TODO
