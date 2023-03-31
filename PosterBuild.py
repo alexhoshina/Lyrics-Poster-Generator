@@ -86,24 +86,65 @@ def style1(lyrcs, singer, song_title, watermark):
     # 返回合并完成后的海报
     return poster.image
 
+def style2(lyrcs, singer, song_title, watermark):
+    """Spotify风格"""
+
+    img_path = "lib\\jay.jpg"
+    img = load_img(img_path)
+
+    #背景
+    background = Picture(color=(239,239,239,255))
+    background.resize((720, 560))
+    #
+
+    #专辑封面
+    album_cover = Picture(img=img)
+    album_cover.resize((200, 200))
+    #
+
+    #计算各组件位置
+    background_pos = (0,0)
+    album_cover_pos = (50,50)
+    song_title_pos = (album_cover_pos[0]*2+album_cover.size[0],album_cover_pos[1]+(album_cover.size[1]//2-song_title.size[1]))
+    singer_pos = (song_title_pos[0],song_title_pos[1]+song_title.size[1])
+    lyrcs_pos = (album_cover_pos[0],album_cover_pos[1]+album_cover.size[1]+50)
+    watermark_pos = (10,background.size[1]-watermark.size[1]-10)
+    #
+
+    #将各组件合并
+    poster = Combine(background, album_cover, album_cover_pos)
+    poster.combine()
+    poster.addimg(song_title, song_title_pos)
+    poster.addimg(singer, singer_pos)
+    poster.addimg(lyrcs, lyrcs_pos)
+    poster.addimg(watermark, watermark_pos)
+    #
+
+    # 返回合并完成后的海报
+    return poster.image
+
+def style3(lyrcs, singer, song_title, watermark):
+    pass
 
 def main():
     # --------------------------------------------------------
-    lyrcs = Writing(text=text1, font_size=40, color=(255, 255, 255, 255))#11x7
+    lyrcs = Writing(text=text1, font_size=40, color=(0, 0, 0, 255))#11x7
     lyrcs.draw()
 
-    singer = Writing(text=text2, font_size=30, color=(255, 255, 255, 255))
+    singer = Writing(text=text2, font_size=30, color=(0, 0, 0, 255))
     singer.draw()
 
-    song_title = Writing(text=text3, font_size=50, color=(255, 255, 255, 255))
+    song_title = Writing(text=text3, font_size=50, color=(0, 0, 0, 255))
     song_title.draw()
 
-    watermark = Writing(text=text4, font_size=20, color=(255, 255, 255, 80))
+    watermark = Writing(text=text4, font_size=20, color=(0, 0, 0, 80))
     watermark.draw()
     # ----------------------------------------------------------
-
     img = style1(lyrcs, singer, song_title, watermark)
-    img.save('Poster.png','PNG')
+    img.save('Poster1(默认风格).png','PNG')
+
+    img = style2(lyrcs, singer, song_title, watermark)
+    img.save('Poster2(Spotify风格).png','PNG')
 
 if __name__ == '__main__':
     main()
