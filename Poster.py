@@ -1,138 +1,168 @@
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 
-class Picture():
+class Poster():
     """
-        图像类
-
-        对图像进行处理,包括模糊,圆角,缩放
-
-        图像具有 图片, 大小, 圆角半径, 模糊数值 属性,
-        其中大小可有两种输入方式, 一种是直接输入宽高, 另一种是输入一个元组,
-        输入元组时,元组的优先级高于宽高,
-        宽高默认为1080,
-        颜色默认为黑色(当输入图片对象为空时,会创建一个纯色图片),
-        圆角半径默认为30,
-        模糊数值默认为50.
+    海报\n
+    lyrics: 歌词\n
+    singer: 歌手\n
+    song_title: 歌曲名\n
+    watermark: 水印\n
+    size: 海报大小\n
     """
-    def __init__(self,img=None,size=(0,0),width=1080,height=1080,color=(0,0,0,255),radius=30,blur=50):
+    def __init__(self, lyrics, singer, song_tiyle,
+                 bg_image, cover_image, 
+                 watermark, size):
+        
+        self.lyrics = lyrics # 歌词
+        self.singer = singer # 歌手
+        self.song_title = song_tiyle # 歌曲名
+        self.watermark = watermark #水印
+
+        self.text_dict = {
+            "lyrics": self.lyrics,
+            "singer": self.singer,
+            "song_title": self.song_title,
+            "watermark": self.watermark
+        }
+
+        self.size = size # 海报大小
+        if(bg_image != None and isinstance(bg_image,Image.Image)):
+            self.bg_image = bg_image
+        elif(isinstance(bg_image, str)) :
+            self.bg_image = Image.open(bg_image)
+        else:
+            self.bg_image = Image.new('RGBA', self.size, color=(0, 0, 0, 0))
+
+        if(cover_image != None and isinstance(cover_image,Image.Image)):
+            self.cover_image = cover_image
+        elif(isinstance(cover_image, str)) :
+            self.cover_image = Image.open(cover_image)
+        else:
+            self.cover_image = Image.new('RGBA', self.size, color=(0, 0, 0, 0))
+        
+        self.images_dict = {
+            "bg_image": self.bg_image,
+            "cover_image": self.cover_image
+        }
+
+    # 新建图片结构
+    def new_pic(self, img_name, size, color, img=None):
+        """
+        新建图片结构\n
+        img_name: 图片名\n
+        size: 图片大小\n
+        color: 图片颜色\n
+        img: 图片\n
+        ————————————————————————————————————————\n
+        直接操作images_dict中的图片,无返回值\n
+        """
         if(img != None):
-            self.image = img
-            self.image = self.image.convert('RGBA')
+            self.images_dict[img_name] = img
         else:
-            self.image = Image.new('RGBA', (width,height), color)
+            self.images_dict[img_name] = Image.new('RGBA', size, color=color)
 
-        if(width != 0 or height != 0 and size == (0,0)):
-            self.size = (width,height)
-        else:
-            self.size = size
+    # 新建文字结构
+    def new_text(self, text_name, text):
+        """
+        新建文字结构\n
+        text_name: 文字名\n
+        text: 文字\n
+        ————————————————————————————————————————\n
+        直接操作text_dict中的文字,无返回值\n
+        """
+        self.text_dict[text_name] = text
+
+    # 重设图片颜色
+    def recolor(self, img_name, new_color):
+        """
+        重设图片颜色\n
+        img_name: 包含有images_dict中的key的列表\n
+        new_color: 新的颜色\n
+        ————————————————————————————————————————\n
+        直接操作images_dict中的图片,无返回值\n
+        """
+        for key, img in self.images_dict.items():
+            if key in img_name:
+                self.images_dict[key] = img.convert("RGBA")
+                data = self.images_dict[key].getdata()
+                newData = []
+                for item in data:
+                    if item[0] == 255 and item[1] == 255 and item[2] == 255:
+                        newData.append((255, 255, 255, 0))
+                    else:
+                        newData.append(new_color)
+                self.images_dict[key].putdata(newData)
+
+    # 重设图片大小
+    def resize(self, img_name,new_size):
+        """
+        重设图片大小\n
+        img_name: 包含有images_dict中的key的列表\n
+        new_size: 新的尺寸\n
+        ————————————————————————————————————————\n
+        直接操作images_dict中的图片,无返回值\n
+        """
+        for key, img in self.images_dict.items():
+            if key in img_name:
+                self.images_dict[key] = img.resize(new_size, Image.ANTIALIAS)
         
-        self.radius = radius
-        self.blur = blur
+    # 生成文字图像
+    def text(self, font, font_color, spacing):
+        """
+        根据对象创建时传入的文本生成对应的图像\n
+        font: 字体,传入时应为经由ImageFont.truetype()打开的实例\n
+        font_color: 一个包含有lyrics, singer, song_tiyle键名的字典,键值为颜色\n
+        spacing: 行间距\n
+        ————————————————————————————————————————\n
+        直接在images_dict中加入图片,无返回值\n
+        """
+        for key, text in self.text_dict.items():
+            lines = text.splitlines()
+            widths, heights = zip(*[font[key].getsize(line) for line in lines])
+            size = (max(widths), sum(heights) + (len(lines) - 1) * spacing)
+            image = Image.new('RGBA', size, color=(0, 0, 0, 0))
+            draw = ImageDraw.Draw(image)  
+            draw.text((0, 0), text, fill=font_color[key], font=font[key])
+            self.images_dict[key] = image
 
-    def resize(self,size=(0,0)):
+    # 对指定图像进行圆角处理
+    def round(self, ronud_image):
         """
-            缩放图片
-            可以输入一个元组, 也可以不输入, 不输入时, 会使用初始化时的宽高
+        对指定图像进行圆角处理\n
+        ronud_image:一个键名为图像,键值为圆角度数的字典 \n
+        ————————————————————————————————————————\n
+        直接操作images_dict中的图片,无返回值\n
         """
-        if(size == (0,0)):
-            self.image = self.image.resize(self.size, Image.ANTIALIAS)
-        else:
-            self.image = self.image.resize(size, Image.ANTIALIAS)
-            self.size = size
+        for img, radius_value in ronud_image.items():
+            # 如果img不是RGBA格式,则转换为RGBA格式
+            if(self.images_dict[img].mode != "RGBA"):
+                self.images_dict[img] = self.images_dict[img].convert("RGBA")
+            trsp = self.images_dict[img].getchannel('A')
+            trsp = trsp.getcolors()[0][1]
+            alpha = Image.new('L', self.images_dict[img].size, 0)
+            draw = ImageDraw.Draw(alpha)
+            draw.rounded_rectangle([0, 0, *self.images_dict[img].size], radius=radius_value, fill=trsp)
+            self.images_dict[img].putalpha(alpha)
     
-    def gaussianblur(self,blur=None):
+    # 对指定图像进行高斯模糊
+    def blur(self, blur_image):
         """
-            模糊图片
-            可以输入一个数值, 也可以不输入, 不输入时, 会使用初始化时的模糊数值
+        对指定图像进行高斯模糊\n
+        blur_image:一个键名为图像,键值为模糊度的字典 \n
+        ————————————————————————————————————————\n
+        直接操作images_dict中的图片,无返回值\n
         """
-        if(blur == None):
-            self.image = self.image.filter(ImageFilter.GaussianBlur(self.blur))
-        else:
-            self.image = self.image.filter(ImageFilter.GaussianBlur(blur))
-            self.blur = blur
+        for img, blur_value in blur_image.items():
+            self.images_dict[img] = self.images_dict[img].filter(ImageFilter.GaussianBlur(blur_value))
 
-    def round(self,radius=None):
+    # 粘合图片
+    def combine(self,pos):
         """
-            圆角图片
-            可以输入一个数值, 也可以不输入, 不输入时, 会使用初始化时的圆角半径
+        粘合pos字典中键值对应的图片,粘合的顺序由字典的顺序决定,粘合后的图片存储在images_dict['poster']中\n
+        pos: 一个键名为图像,键值为位置的字典 \n
+        ————————————————————————————————————————\n
+        直接操作images_dict中的图片,无返回值\n
         """
-        trsp = self.image.getchannel('A')
-        trsp = trsp.getcolors()[0][1]
-        alpha = Image.new('L', self.size, 0)
-        draw = ImageDraw.Draw(alpha)
-        if(radius == None):
-            draw.rounded_rectangle([0, 0, self.size[0], self.size[1]], radius=self.radius, fill=trsp)
-        else:
-            draw.rounded_rectangle([0, 0, self.size[0], self.size[1]], radius=radius, fill=trsp)
-            self.radius = radius
-        self.image.putalpha(alpha)
-
-class Writing():
-    """
-        文字类
-
-        创建透明背景的文字图片
-
-        文字具有 文本, 颜色, 字体大小, 字体, 行间距 属性,
-        其中文本为必须属性,
-        颜色默认为白色,
-        字体大小默认为30,
-        字体默认为系统字体,
-        行间距默认为5.
-    """
-    def __init__(self,text,color=(255,255,255,255),font_size=30,font = 'lib\msyh.ttc',spacing = 5):
-        self.text = text
-        self.font = ImageFont.truetype(font, font_size)
-        self.color = color
-        self.spacing = spacing
-        self.size = None
-        self.image = self.__initimg()
-        
-    def __initimg(self):
-        """
-            初始化图片
-
-            会自动计算输入的文本的宽度和高度,并创建一张透明背景的图片
-        """
-        lines = self.text.splitlines()
-        line_widths = [self.font.getsize(line)[0] for line in lines]
-        line_heights = [self.font.getsize(line)[1] for line in lines]
-        img_width = max(line_widths)
-        img_height = sum(line_heights) + (len(lines) - 1) * self.spacing  # spacing 为行间距
-        self.size = (img_width,img_height)
-        return Image.new('RGBA', (img_width, img_height), color=(255, 255, 255,0))
-    
-    def draw(self):
-        """
-            绘制文字
-        """
-        draw = ImageDraw.Draw(self.image)
-        draw.text((0, 0), self.text, fill=self.color, font=self.font)
-        
-class Combine():
-    """
-        合成类
-
-        将两张图片合成为一张图片,图片2位于图片1的上层
-
-        合成类具有 图片1, 图片2, 位置, 拓展 属性,
-        前三种属性都为必须属性,拓展为可选属性,
-        拓展是指合成后的图片向xy轴拓展的像素数,
-        位置为元组, 元组的第一个值为x轴的偏移量, 第二个值为y轴的偏移量.
-    """
-    def __init__(self,img1,img2,pos,expand=0):
-        self.img1 = img1.image
-        self.img2 = img2.image
-        self.size = (max(img1.size[0], img2.size[0]), max(img1.size[1], img2.size[1]))
-        self.pos = pos
-        self.image = self.__initimg(expand)
-    
-    def __initimg(self,expand=0):
-        return Image.new('RGBA', (self.size[0]+expand,self.size[1]+expand), color=(255, 255, 255,0))
-    
-    def addimg(self,img,pos):
-        self.image.paste(img.image,pos,img.image)
-        
-    def combine(self):
-        self.image.paste(self.img1,(0,0,self.size[0],self.size[1]),self.img1)
-        self.image.paste(self.img2,self.pos,self.img2)
+        self.images_dict['poster'] = Image.new('RGBA', self.size, color=(0, 0, 0, 0))
+        for img, pos_s in pos.items():
+            self.images_dict['poster'].paste(self.images_dict[img], pos_s, self.images_dict[img])
