@@ -1,0 +1,205 @@
+Element: 
+
+  background: 
+    name: background
+    image_path: lib/td.jpg
+    size: !!python/tuple
+    - 1100
+    - 1900
+    blur: 100
+    round: 30
+
+  bg_shadow: 
+    name: bg_shadow
+    image_path: null
+    size: !!python/tuple
+    - 1100
+    - 1900
+    color: !!python/tuple
+    - 0
+    - 0
+    - 0
+    - 100
+    round: 30
+  
+  lyric: 
+    name: lyric
+    text: |
+          終於明白你已變成回憶
+          沒有言語能夠說明當別人問起
+          譜了一段旋律沒有句點
+          也無法再繼續
+          像埋伏在街頭的某種氣息
+          無意間經過把往日笑與淚勾起
+          忽然心痛的無法再壓抑
+          原來從未忘記
+    font: lib/pfc.otf
+    font_size: 70
+    font_color: !!python/tuple
+    - 255
+    - 255
+    - 255
+    spacing: 10
+  
+  song_title: 
+    name: song_title
+    text: Melody
+    font: lib/pfc.otf
+    font_size: 100
+    font_color: !!python/tuple
+    - 255
+    - 255
+    - 255
+    spacing: 5
+
+  singer: 
+    name: singer
+    text: David Tao
+    font: lib/pfc.otf
+    font_size: 60
+    font_color: !!python/tuple
+    - 255
+    - 255
+    - 255
+    spacing: 5
+
+  cover: 
+    name: cover
+    image_path: lib/td.jpg
+    size: !!python/tuple
+    - 300
+    - 300
+    round: 30
+
+  cover_shadow: 
+    name: cover_shadow
+    image_path: null
+    size: (self.lyric.size[0]+50, self.cover.size[1]+60)
+    color: !!python/tuple
+    - 0
+    - 0
+    - 0
+    - 100
+    round: 50
+
+  lyric_shadow: 
+    name: lyric_shadow
+    image_path: null
+    size: (self.cover_shadow.size[0], self.lyric.size[1]+self.singer.size[1]+self.song_title.size[1]+self.cover_shadow.size[1]+100)
+    color: !!python/tuple
+    - 0
+    - 0
+    - 0
+    - 100
+    round: 50
+  
+  date: 
+    name: date
+    text: 2002年8月9日
+    font: lib/pfc.otf
+    font_size: 20
+    font_color: !!python/tuple
+    - 200
+    - 200
+    - 200
+    spacing: 5
+
+  cover_title: 
+    name: cover_title
+    text: 黑色柳丁
+    font: lib/pfc.otf
+    font_size: 70
+    font_color: !!python/tuple
+    - 200
+    - 200
+    - 200
+    spacing: 5
+
+Layout: 
+  -  image1: self.layout
+     anchor1: center
+     image2: self.background
+     anchor2: center
+     dxdy: !!python/tuple
+     - 0
+     - 0
+
+  -  image1: self.background
+     anchor1: center
+     image2: self.bg_shadow
+     anchor2: center
+     dxdy: !!python/tuple
+     - 5
+     - 5
+
+  -  image1: self.background
+     anchor1: center
+     image2: self.lyric_shadow
+     anchor2: center
+     dxdy: !!python/tuple
+     - 0
+     - 0
+
+  - image1: self.lyric_shadow
+    anchor1: bottom
+    image2: self.cover_shadow
+    anchor2: bottom
+    dxdy: !!python/tuple
+    - 0
+    - 0
+
+  - image1: self.singer
+    anchor1: top
+    image2: self.song_title
+    anchor2: bottom
+    dxdy: !!python/tuple
+    - 0
+    - 0
+  
+  - image1: self.cover_shadow
+    anchor1: top
+    image2: self.lyric
+    anchor2: bottom
+    dxdy: !!python/tuple
+    - 0
+    - -20
+
+  - image1: self.cover_shadow
+    anchor1: left
+    image2: self.cover
+    anchor2: left
+    dxdy: !!python/tuple
+    - 30
+    - 0
+
+  - image1: self.lyric
+    anchor1: top
+    image2: self.singer
+    anchor2: bottom
+    dxdy: !!python/tuple
+    - 0
+    - -20
+
+  - image1: self.cover
+    anchor1: right
+    image2: self.date
+    anchor2: left
+    dxdy: (int((self.cover_shadow.anchor['right'][0]-self.cover.anchor['right'][0]-self.date.size[0])/2),int(self.cover.size[1]/2-self.date.size[1]))
+
+  - image1: self.date
+    anchor1: top
+    image2: self.cover_title
+    anchor2: bottom
+    dxdy: (0,-(int(self.cover.size[1]/2)-self.cover_title.size[1]))
+
+Order: 
+  - bg_shadow
+  - background
+  - lyric_shadow
+  - cover_shadow
+  - cover
+  - cover_title
+  - date
+  - song_title
+  - singer
+  - lyric
